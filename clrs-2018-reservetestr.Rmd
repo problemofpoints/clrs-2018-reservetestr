@@ -1,0 +1,96 @@
+---
+title: "Looking through the Rear-View Mirror: Back-Testing Loss Reserve Methods"
+subtitle: "CAS Loss Reserve Seminar"
+author: "Adam Troyer"
+date: "September 6, 2018"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["custom-fonts.css", "default", "custom.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: "title-slide"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+class: left, top
+
+# Agenda
+
+- The problem?
+- The solution?
+- The competition
+
+---
+
+class: title-slide
+
+# The problem?
+
+---
+
+class: left, top
+
+# What is the problem?
+
+- We don't test our methods
+- Meyers started to dig into reserve risk post S&P article on actuaries missing reserving estimates post soft market
+- Leong presentation
+- Meyers CAS loss triangle database
+- Examples of Meyere using data / testing
+  - show his code for doing this
+  - Picture of me trying to replicate
+
+---
+
+class: title-slide
+
+# The solution?
+
+---
+
+class: left, top
+
+# The solution?
+
+- Introduce `reservetestr` package
+  - work in progress
+  - goal of the package
+  - how it works, what it does
+- Simple example
+- Future enhancements
+
+---
+
+class: title-slide
+
+# The competition
+
+---
+
+class: left, top
+
+# The competition
+
+- Test several deterministic methods
+  - chain ladder, cape code, b-f, average of methods
+- Test several stochastic methods
+  - Mack, Bootstrap, all methods from `ChainLadder` package
+- Declare winners?
+
+---
+
+# Other Stuff
+
+- post deck online
+  - setup netlify site?
+- live demo??
+  - setup on a server so can login via browser?
+  - will be limited by what CAS computers allow
+  
+
