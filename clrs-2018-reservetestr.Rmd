@@ -6,12 +6,12 @@ date: "September 6, 2018"
 output:
   xaringan::moon_reader:
     lib_dir: libs
-    css: ["custom-fonts.css", "default", "custom.css"]
+    css: ["default", "metropolis-fonts", "metropolis", "hygge"]
     nature:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
-      titleSlideClass: "title-slide"
+      slideNumberFormat: "%current%"
 ---
 
 ```{r setup, include=FALSE}
@@ -28,7 +28,7 @@ class: left, top
 
 ---
 
-class: title-slide
+class: inverse, left, middle
 
 # The problem?
 
@@ -48,7 +48,7 @@ class: left, top
 
 ---
 
-class: title-slide
+class: inverse, left, middle
 
 # The solution?
 
@@ -67,7 +67,7 @@ class: left, top
 
 ---
 
-class: title-slide
+class: inverse, left, middle
 
 # The competition
 
