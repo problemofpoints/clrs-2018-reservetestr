@@ -1,12 +1,12 @@
 ---
-title: "Looking through the Rear-View Mirror: Back-Testing Loss Reserve Methods"
+title: "Looking through the Rear-View Mirror: <br> Back-Testing Loss Reserve Methods"
 subtitle: "CAS Loss Reserve Seminar"
 author: "Adam Troyer"
 date: "September 6, 2018"
 output:
   xaringan::moon_reader:
     lib_dir: libs
-    css: ["default", "metropolis-fonts", "metropolis", "hygge"]
+    css: ["metropolis-fonts", "metropolis", "hygge"]
     nature:
       highlightStyle: github
       highlightLines: true
@@ -16,35 +16,87 @@ output:
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+
+library(tidyverse)
+library(reservetestr)
+
+ggSetTheme()
+
 ```
 
 class: left, top
 
 # Agenda
 
-- The problem?
+.font200[
+
+- The problem
 - The solution?
-- The competition
+- R package: `reservetestr`
+- The results
+- The future
+
+]
+
+---
+
+# Links
+
+.font150[
+
+R package: https://github.com/problemofpoints/reservetestr
+
+Presentation: 
+
+]
 
 ---
 
 class: inverse, left, middle
 
-# The problem?
+# The problem
 
 ---
 
 class: left, top
 
-# What is the problem?
+# Reserve risk is material...
 
-- We don't test our methods
-- Meyers started to dig into reserve risk post S&P article on actuaries missing reserving estimates post soft market
-- Leong presentation
-- Meyers CAS loss triangle database
-- Examples of Meyere using data / testing
-  - show his code for doing this
-  - Picture of me trying to replicate
+```{r, echo=FALSE}
+knitr::include_graphics("img/amb-impairment-causes-one.png")
+```
+
+---
+
+# Reserve risk is material...
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/largest-pc-events-.png")
+```
+
+---
+
+# ...but it's hard to estimate!
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/reserve-vs-cat.png")
+```
+
+---
+
+# ...but it's hard to estimate!
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/reserve-risk-word-cloud.png")
+```
+
+---
+
+# And some don't appreciate that...
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/sp-article.png")
+```
 
 ---
 
@@ -56,14 +108,135 @@ class: inverse, left, middle
 
 class: left, top
 
-# The solution?
+# The solution? Traditional stochastic reserving methods
 
-- Introduce `reservetestr` package
-  - work in progress
-  - goal of the package
-  - how it works, what it does
-- Simple example
-- Future enhancements
+```{r, echo=FALSE}
+knitr::include_graphics("img/astin-most-popular-methods.png")
+```
+
+---
+
+# But are they accurate? We can test that!
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/cas-loss-db.png")
+```
+
+---
+
+# Meyers's Monograph
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/meyers-monograph.png")
+```
+
+---
+
+# Back-testing methodology
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/uniform-test1.png")
+```
+
+---
+
+# Back-testing methodology
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/uniform-test2.png")
+```
+
+---
+
+# Monograph summary and conclusion
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/meyers-summary.png")
+```
+
+---
+
+class: inverse, left, middle
+
+# R package: reservetestr
+
+---
+
+class: left, top
+
+# Me trying to replicate results
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/pulling-hair.gif")
+```
+
+---
+
+# So build an R package!
+
+.font150[
+
+- `reservetestr` package
+  - Work in progress
+  - https://github.com/problemofpoints/reservetestr
+
+]
+
+---
+
+# Example: "training data"
+
+```{r sample-data-train, fig.cap="Sampe Paid Loss Triangle - Training data"}
+cas_loss_reserve_db %>%
+  get_meyers_subset() %>%
+  filter(line == "ppauto" & group_id == 388) %>%
+  pluck("train_tri_set", 1, "paid")
+```
+
+---
+
+# Example: "testing data"
+
+```{r sample-data-test, fig.cap="Sampe Paid Loss Triangle - Testing data"}
+cas_loss_reserve_db %>%
+  get_meyers_subset() %>%
+  filter(line == "ppauto" & group_id == 388) %>%
+  pluck("test_tri_set", 1, "paid")
+```
+
+---
+
+# Example: Commercial Auto
+
+Now we can run the Mack method on our triangle training data and back-test its accuracy. We use the implementation of the Mack method in the `ChainLadder` package, `MackChainLadder`, applied to the `comauto` line of business.
+
+
+```{r backtest-mack-example, warning=FALSE, message=FALSE}
+cas_db_subset <- cas_loss_reserve_db %>%
+  get_meyers_subset()
+
+mack_paid_results <- run_single_backtest(cas_db_subset, 
+                                         testr_MackChainLadder, 
+                                         lines_to_include = "comauto",
+                                         loss_type_to_backtest = "paid", 
+                                         method_label = "mack_paid")
+```
+
+---
+
+# Example: Commercial Auto - output
+
+```{r mack-glimpse}
+glimpse(mack_paid_results)
+```
+
+---
+
+# Example: Commercial Auto - results
+
+```{r mack-exhibits-pp-example}
+create_pp_plot(mack_paid_results, by_line = TRUE)
+```
 
 ---
 
@@ -77,20 +250,129 @@ class: left, top
 
 # The competition
 
-- Test several deterministic methods
-  - chain ladder, cape code, b-f, average of methods
-- Test several stochastic methods
-  - Mack, Bootstrap, all methods from `ChainLadder` package
+- Test several methods on both paid and case-incurred triangles
+--
+
+- All methods from the `ChainLadder` package for now
+  - MackChainLadder
+  - BootChainLadder
+  - ClarkCapeCod
+--
+
+- Show results from Meyers's Changing Settlement Rate (CSR) method
+--
+
 - Declare winners?
 
 ---
 
-# Other Stuff
+# Mack - Paid
 
-- post deck online
-  - setup netlify site?
-- live demo??
-  - setup on a server so can login via browser?
-  - will be limited by what CAS computers allow
-  
+```{r backtest-mack, warning=FALSE, message=FALSE, echo=FALSE}
+mack_paid_results_all <- run_single_backtest(cas_db_subset, 
+                                         testr_MackChainLadder, 
+                                         loss_type_to_backtest = "paid", 
+                                         method_label = "mack_paid")
+```
+```{r mack-exhibits-pp, echo-FALSE, fig.width=10, fig.height=8}
+create_pp_plot(mack_paid_results_all, by_line = TRUE)
+```
+
+---
+
+# Mack - Case-Incurred
+
+```{r backtest-mack2, warning=FALSE, message=FALSE, echo=FALSE}
+mack_case_results_all <- run_single_backtest(cas_db_subset, 
+                                         testr_MackChainLadder, 
+                                         loss_type_to_backtest = "case",
+                                         method_label = "mack_case")
+```
+```{r mack-exhibits-pp2, echo-FALSE, fig.width=10, fig.height=8}
+create_pp_plot(mack_case_results_all, by_line = TRUE)
+```
+
+---
+
+# ODP Bootstrap - Paid
+
+```{r backtest-boot, warning=FALSE, message=FALSE, echo=FALSE}
+boot_paid_results_all <- run_single_backtest(cas_db_subset, 
+                                         testr_BootChainLadder, 
+                                         loss_type_to_backtest = "paid", 
+                                         method_label = "boot_paid")
+```
+```{r boot-exhibits-pp, echo-FALSE, fig.width=10, fig.height=8}
+create_pp_plot(boot_paid_results_all, by_line = TRUE)
+```
+
+---
+
+# ODP Bootstrap - Case-Incurred
+
+```{r backtest-boot2, warning=FALSE, message=FALSE, echo=FALSE}
+boot_case_results_all <- run_single_backtest(cas_db_subset, 
+                                         testr_BootChainLadder, 
+                                         loss_type_to_backtest = "case",
+                                         method_label = "boot_case")
+```
+```{r boot-exhibits-pp2, echo-FALSE, fig.width=10, fig.height=8}
+create_pp_plot(boot_case_results_all, by_line = TRUE)
+```
+
+---
+
+# Clark Cape Cod - Paid
+
+```{r backtest-clark, warning=FALSE, message=FALSE, echo=FALSE}
+clark_paid_results_all <- run_single_backtest(cas_db_subset, 
+                                         testr_ClarkCapeCod, 
+                                         loss_type_to_backtest = "paid", 
+                                         method_label = "clark_paid",
+                                         maxage = 120)
+```
+```{r clark-exhibits-pp, echo-FALSE, fig.width=10, fig.height=8}
+create_pp_plot(clark_paid_results_all, by_line = TRUE)
+```
+
+---
+
+# Clark Cape Cod - Case-Incurred
+
+```{r backtest-clark2, warning=FALSE, message=FALSE, echo=FALSE}
+clark_case_results_all <- run_single_backtest(cas_db_subset, 
+                                         testr_ClarkCapeCod, 
+                                         loss_type_to_backtest = "case",
+                                         method_label = "clark_case",
+                                         maxage=120)
+```
+```{r clark-exhibits-pp2, echo-FALSE, fig.width=10, fig.height=8}
+create_pp_plot(clark_case_results_all, by_line = TRUE)
+```
+
+---
+
+# Changing Settlement Rate - Paid
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/csr-pp-plot.png")
+```
+
+---
+
+class: inverse, left, middle
+
+# The future
+
+---
+
+# reservetestr enhancements
+
+.font150[
+- Add error metrics for deterministic methods
+- Create an object structure using S3 class system
+- Add more error handling
+- Add `testr_` functions for the other methods in `ChainLadder`
+- Add ability to test several methods at once
+]
 

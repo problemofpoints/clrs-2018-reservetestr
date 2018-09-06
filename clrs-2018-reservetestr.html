@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Looking through the Rear-View Mirror: Back-Testing Loss Reserve Methods</title>
+    <title>Looking through the Rear-View Mirror:   Back-Testing Loss Reserve Methods</title>
     <meta charset="utf-8">
     <meta name="author" content="Adam Troyer" />
     <meta name="date" content="2018-09-06" />
-    <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css/hygge.css" rel="stylesheet" />
@@ -14,7 +13,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Looking through the Rear-View Mirror: Back-Testing Loss Reserve Methods
+# Looking through the Rear-View Mirror: <br> Back-Testing Loss Reserve Methods
 ## CAS Loss Reserve Seminar
 ### Adam Troyer
 ### September 6, 2018
@@ -28,29 +27,65 @@ class: left, top
 
 # Agenda
 
-- The problem?
+.font200[
+
+- The problem
 - The solution?
-- The competition
+- R package: `reservetestr`
+- The results
+- The future
+
+]
+
+---
+
+# Links
+
+.font150[
+
+R package: https://github.com/problemofpoints/reservetestr
+
+Presentation: 
+
+]
 
 ---
 
 class: inverse, left, middle
 
-# The problem?
+# The problem
 
 ---
 
 class: left, top
 
-# What is the problem?
+# Reserve risk is material...
 
-- We don't test our methods
-- Meyers started to dig into reserve risk post S&amp;P article on actuaries missing reserving estimates post soft market
-- Leong presentation
-- Meyers CAS loss triangle database
-- Examples of Meyere using data / testing
-  - show his code for doing this
-  - Picture of me trying to replicate
+&lt;img src="img/amb-impairment-causes-one.png" width="828" /&gt;
+
+---
+
+# Reserve risk is material...
+
+&lt;img src="img/largest-pc-events-.png" width="540" /&gt;
+
+---
+
+# ...but it's hard to estimate!
+
+&lt;img src="img/reserve-vs-cat.png" width="807" /&gt;
+
+---
+
+# ...but it's hard to estimate!
+
+&lt;img src="img/reserve-risk-word-cloud.png" width="833" /&gt;
+
+---
+
+# And some don't appreciate that...
+
+&lt;img src="img/sp-article.png" width="828" /&gt;
 
 ---
 
@@ -62,14 +97,180 @@ class: inverse, left, middle
 
 class: left, top
 
-# The solution?
+# The solution? Traditional stochastic reserving methods
 
-- Introduce `reservetestr` package
-  - work in progress
-  - goal of the package
-  - how it works, what it does
-- Simple example
-- Future enhancements
+&lt;img src="img/astin-most-popular-methods.png" width="828" /&gt;
+
+---
+
+# But are they accurate? We can test that!
+
+&lt;img src="img/cas-loss-db.png" width="784" /&gt;
+
+---
+
+# Meyers's Monograph
+
+&lt;img src="img/meyers-monograph.png" width="421" /&gt;
+
+---
+
+# Back-testing methodology
+
+&lt;img src="img/uniform-test1.png" width="452" /&gt;
+
+---
+
+# Back-testing methodology
+
+&lt;img src="img/uniform-test2.png" width="452" /&gt;
+
+---
+
+# Monograph summary and conclusion
+
+&lt;img src="img/meyers-summary.png" width="785" /&gt;
+
+---
+
+class: inverse, left, middle
+
+# R package: reservetestr
+
+---
+
+class: left, top
+
+# Me trying to replicate results
+
+![](img/pulling-hair.gif)&lt;!-- --&gt;
+
+---
+
+# So build an R package!
+
+.font150[
+
+- `reservetestr` package
+  - Work in progress
+  - https://github.com/problemofpoints/reservetestr
+
+]
+
+---
+
+# Example: "training data"
+
+
+```r
+cas_loss_reserve_db %&gt;%
+  get_meyers_subset() %&gt;%
+  filter(line == "ppauto" &amp; group_id == 388) %&gt;%
+  pluck("train_tri_set", 1, "paid")
+```
+
+```
+##       dev_lag
+## acc_yr     1     2     3     4     5     6     7     8     9    10
+##   1988 13440 35680 48703 56319 61018 61119 63049 63556 63744 63835
+##   1989 18757 44166 57578 66264 65600 67721 75369 76713 77007    NA
+##   1990 19834 42225 56347 63194 67112 69459 74267 79208    NA    NA
+##   1991 16230 38045 46055 53983 60638 62917 71074    NA    NA    NA
+##   1992 14629 22427 33873 43339 53168 60413    NA    NA    NA    NA
+##   1993 24597 51373 68484 80253 92192    NA    NA    NA    NA    NA
+##   1994 31723 59733 77398 94395    NA    NA    NA    NA    NA    NA
+##   1995 37397 71133 94294    NA    NA    NA    NA    NA    NA    NA
+##   1996 53670 98628    NA    NA    NA    NA    NA    NA    NA    NA
+##   1997 52837    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## attr(,"class")
+## [1] "triangle" "matrix"  
+## attr(,"exposure")
+##  [1]  83473  91800  95877  99256  96170 139038 152174 167833 180523 164717
+```
+
+---
+
+# Example: "testing data"
+
+
+```r
+cas_loss_reserve_db %&gt;%
+  get_meyers_subset() %&gt;%
+  filter(line == "ppauto" &amp; group_id == 388) %&gt;%
+  pluck("test_tri_set", 1, "paid")
+```
+
+```
+##       dev_lag
+## acc_yr     2      3      4      5      6      7      8      9     10
+##   1988    NA     NA     NA     NA     NA     NA     NA     NA  63835
+##   1989    NA     NA     NA     NA     NA     NA     NA     NA  77029
+##   1990    NA     NA     NA     NA     NA     NA     NA  79250  79308
+##   1991    NA     NA     NA     NA     NA     NA  71885  72560  72579
+##   1992    NA     NA     NA     NA     NA  61452  62363  62464  62458
+##   1993    NA     NA     NA     NA  94939  97226  97536  97654  97787
+##   1994    NA     NA     NA 101008 104557 107399 108067 108476 110038
+##   1995    NA     NA 103996 107948 109478 110401 111051 111108 111598
+##   1996    NA 112473 123070 129739 131549 132682 133137 133426 133522
+##   1997 77758  95357 104789 109025 111835 112467 113000 113086 113371
+## attr(,"class")
+## [1] "triangle" "matrix"
+```
+
+---
+
+# Example: Commercial Auto
+
+Now we can run the Mack method on our triangle training data and back-test its accuracy. We use the implementation of the Mack method in the `ChainLadder` package, `MackChainLadder`, applied to the `comauto` line of business.
+
+
+
+```r
+cas_db_subset &lt;- cas_loss_reserve_db %&gt;%
+  get_meyers_subset()
+
+mack_paid_results &lt;- run_single_backtest(cas_db_subset, 
+                                         testr_MackChainLadder, 
+                                         lines_to_include = "comauto",
+                                         loss_type_to_backtest = "paid", 
+                                         method_label = "mack_paid")
+```
+
+---
+
+# Example: Commercial Auto - output
+
+
+```r
+glimpse(mack_paid_results)
+```
+
+```
+## Observations: 47
+## Variables: 11
+## $ line              &lt;chr&gt; "comauto", "comauto", "comauto", "comauto", ...
+## $ group_id          &lt;dbl&gt; 353, 388, 620, 833, 1066, 1090, 1538, 1767, ...
+## $ company           &lt;chr&gt; "Celina Mut Grp", "Federal Ins Co Grp", "Emp...
+## $ method            &lt;chr&gt; "mack_paid", "mack_paid", "mack_paid", "mack...
+## $ actual_ultimate   &lt;dbl&gt; 40000, 745997, 388485, 24613, 63022, 21354, ...
+## $ actual_unpaid     &lt;dbl&gt; 7399, 189270, 89855, 2959, 5269, 3474, 16640...
+## $ mean_ultimate_est &lt;dbl&gt; 39177.438, 714600.238, 398408.978, 25350.326...
+## $ mean_unpaid_est   &lt;dbl&gt; 6576.4378, 157873.2378, 99778.9781, 3696.325...
+## $ stddev_est        &lt;dbl&gt; 1442.5094, 46454.1901, 9466.1578, 836.7769, ...
+## $ cv_unpaid_est     &lt;dbl&gt; 0.21934510, 0.29424994, 0.09487126, 0.226380...
+## $ implied_pctl      &lt;dbl&gt; 0.7200268344, 0.7563488511, 0.1468789988, 0....
+```
+
+---
+
+# Example: Commercial Auto - results
+
+
+```r
+create_pp_plot(mack_paid_results, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/mack-exhibits-pp-example-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -83,21 +284,115 @@ class: left, top
 
 # The competition
 
-- Test several deterministic methods
-  - chain ladder, cape code, b-f, average of methods
-- Test several stochastic methods
-  - Mack, Bootstrap, all methods from `ChainLadder` package
+.font150[
+- Test several methods on both paid and case-incurred triangles
+--
+
+- All methods from the `ChainLadder` package for now
+  - MackChainLadder
+  - BootChainLadder
+  - ClarkCapeCod
+--
+
+- Show results from Meyers's Changing Settlement Rate (CSR) method
+--
+
 - Declare winners?
+]
 
 ---
 
-# Other Stuff
+# Mack - Paid
 
-- post deck online
-  - setup netlify site?
-- live demo??
-  - setup on a server so can login via browser?
-  - will be limited by what CAS computers allow
+
+
+```r
+create_pp_plot(mack_paid_results_all, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/mack-exhibits-pp, echo-FALSE-1.png)&lt;!-- --&gt;
+
+---
+
+# Mack - Case-Incurred
+
+
+
+```r
+create_pp_plot(mack_case_results_all, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/mack-exhibits-pp2, echo-FALSE-1.png)&lt;!-- --&gt;
+
+---
+
+# ODP Bootstrap - Paid
+
+
+
+```r
+create_pp_plot(boot_paid_results_all, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/boot-exhibits-pp, echo-FALSE-1.png)&lt;!-- --&gt;
+
+---
+
+# ODP Bootstrap - Case-Incurred
+
+
+
+```r
+create_pp_plot(boot_case_results_all, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/boot-exhibits-pp2, echo-FALSE-1.png)&lt;!-- --&gt;
+
+# Clark Cape Cod - Paid
+
+
+
+```r
+create_pp_plot(clark_paid_results_all, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/clark-exhibits-pp, echo-FALSE-1.png)&lt;!-- --&gt;
+
+---
+
+# Clark Cape Cod - Case-Incurred
+
+
+
+```r
+create_pp_plot(clark_case_results_all, by_line = TRUE)
+```
+
+![](clrs-2018-reservetestr_files/figure-html/clark-exhibits-pp2, echo-FALSE-1.png)&lt;!-- --&gt;
+
+---
+
+# Changing Settlement Rate - Paid
+
+&lt;img src="img/csr-pp-plot.png" width="897" /&gt;
+
+---
+
+class: inverse, left, middle
+
+# The future
+
+---
+
+# reservetestr enhancements
+
+.font150[
+- Add error metrics for deterministic methods
+- Create an object structure using S3 class system
+- Add more error handling
+- Add `testr_` functions for the other methods in `ChainLadder`
+- Add ability to test several methods at once
+]
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
