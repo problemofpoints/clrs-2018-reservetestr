@@ -46,7 +46,7 @@ class: left, top
 
 R package: https://github.com/problemofpoints/reservetestr
 
-Presentation: 
+Presentation: https://reservetestr.netlify.com/
 
 ]
 
@@ -274,7 +274,7 @@ mack_paid_results_all <- run_single_backtest(cas_db_subset,
                                          loss_type_to_backtest = "paid", 
                                          method_label = "mack_paid")
 ```
-```{r mack-exhibits-pp, echo-FALSE, fig.width=10, fig.height=8}
+```{r mack-exhibits-pp, echo-FALSE, fig.width=9, fig.height=7}
 create_pp_plot(mack_paid_results_all, by_line = TRUE)
 ```
 
@@ -288,7 +288,7 @@ mack_case_results_all <- run_single_backtest(cas_db_subset,
                                          loss_type_to_backtest = "case",
                                          method_label = "mack_case")
 ```
-```{r mack-exhibits-pp2, echo-FALSE, fig.width=10, fig.height=8}
+```{r mack-exhibits-pp2, echo-FALSE, fig.width=9, fig.height=7}
 create_pp_plot(mack_case_results_all, by_line = TRUE)
 ```
 
@@ -302,7 +302,7 @@ boot_paid_results_all <- run_single_backtest(cas_db_subset,
                                          loss_type_to_backtest = "paid", 
                                          method_label = "boot_paid")
 ```
-```{r boot-exhibits-pp, echo-FALSE, fig.width=10, fig.height=8}
+```{r boot-exhibits-pp, echo-FALSE, fig.width=9, fig.height=7}
 create_pp_plot(boot_paid_results_all, by_line = TRUE)
 ```
 
@@ -316,7 +316,7 @@ boot_case_results_all <- run_single_backtest(cas_db_subset,
                                          loss_type_to_backtest = "case",
                                          method_label = "boot_case")
 ```
-```{r boot-exhibits-pp2, echo-FALSE, fig.width=10, fig.height=8}
+```{r boot-exhibits-pp2, echo-FALSE, fig.width=9, fig.height=7}
 create_pp_plot(boot_case_results_all, by_line = TRUE)
 ```
 
@@ -331,7 +331,7 @@ clark_paid_results_all <- run_single_backtest(cas_db_subset,
                                          method_label = "clark_paid",
                                          maxage = 120)
 ```
-```{r clark-exhibits-pp, echo-FALSE, fig.width=10, fig.height=8}
+```{r clark-exhibits-pp, echo-FALSE, fig.width=9, fig.height=7}
 create_pp_plot(clark_paid_results_all, by_line = TRUE)
 ```
 
@@ -346,7 +346,7 @@ clark_case_results_all <- run_single_backtest(cas_db_subset,
                                          method_label = "clark_case",
                                          maxage=120)
 ```
-```{r clark-exhibits-pp2, echo-FALSE, fig.width=10, fig.height=8}
+```{r clark-exhibits-pp2, echo-FALSE, fig.width=9, fig.height=7}
 create_pp_plot(clark_case_results_all, by_line = TRUE)
 ```
 
@@ -376,3 +376,8 @@ class: inverse, left, middle
 - Add ability to test several methods at once
 ]
 
+---
+
+# Contact
+
+- adam.troyer@aonbenfield.com
